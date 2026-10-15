@@ -1,4 +1,5 @@
-from typing import Optional
+import itertools
+from typing import Dict, List, Optional
 from core.state import BoardState, get_neighbors
 from core.node import PuzzleNode
 from solvers.base_solver import BaseSolver
@@ -12,22 +13,50 @@ class IDDFSSolver(BaseSolver):
     def _search(
         self, root_node: PuzzleNode, goal_state: BoardState
     ) -> Optional[PuzzleNode]:
-        """
-        TODO (Teammate): Implement Iterative Deepening Depth-First Search (IDDFS).
+        for depth_limit in itertools.count(0):
+            # Start each iteration with a clean tree
+            root_node.children.clear()
+            goal_node = self._depth_limited_search(root_node, goal_state, depth_limit)
+            if goal_node is not None:
+                return goal_node
+        return None
 
-        Implementation Notes:
-        1. Loop `depth_limit` from 0 upwards (e.g., `itertools.count(0)`).
-        2. For each `depth_limit`, run a Depth-Limited Search (DLS) starting from `root_node`.
-           Note: Before starting a new iteration > 0, clear `root_node.children.clear()` if you
-           want the final tree structure to only reflect the successful iteration, OR keep
-           passing `iteration=depth_limit` to `self.record_expansion(node, children, iteration=depth_limit)`.
-        3. Optimal Revisiting Pitfall in DLS:
-           In Depth-Limited DFS, a state might be visited first via a deep, suboptimal branch
-           that hits the depth limit, and later reached via a shallower branch.
-           Instead of a simple `visited: Set[BoardState]`, track `best_depth: Dict[BoardState, int]`
-           within each iteration and allow expanding/visiting `next_state` if it hasn't been
-           seen OR if `new_depth < best_depth[next_state]`.
-        4. Use `self.create_node(...)` and `self.record_expansion(..., iteration=depth_limit)`
-           so the GUI can track nodes and depth limits properly.
-        """
-        raise NotImplementedError("Iterative DFS algorithm is not implemented yet.")
+    def _depth_limited_search(
+        self, root_node: PuzzleNode, goal_state: BoardState, depth_limit: int
+    ) -> Optional[PuzzleNode]:
+        frontier: List[PuzzleNode] = [root_node]
+        # Shallowest depth at which each state was seen in this iteration
+        best_depth: Dict[BoardState, int] = {root_node.state: 0}
+
+        while frontier:
+            current_node = frontier.pop()
+
+            # Skip stale copies: a shallower path to this state was found later
+            if current_node.depth > best_depth[current_node.state]:
+                continue
+
+            if current_node.state == goal_state:
+                return current_node
+
+            generated_children: List[PuzzleNode] = []
+
+            # Only expand if we have not reached the depth limit
+            if current_node.depth < depth_limit:
+                new_depth = current_node.depth + 1
+                for action, next_state in reversed(get_neighbors(current_node.state)):
+                    if next_state not in best_depth or new_depth < best_depth[next_state]:
+                        best_depth[next_state] = new_depth
+                        child_node = self.create_node(
+                            state=next_state,
+                            parent=current_node,
+                            action=action,
+                        )
+                        frontier.append(child_node)
+                        generated_children.append(child_node)
+
+                # Restore Up, Down, Left, Right order for the GUI display
+                generated_children.reverse()
+
+            self.record_expansion(current_node, generated_children, iteration=depth_limit)
+
+        return None

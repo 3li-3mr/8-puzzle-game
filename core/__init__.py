@@ -10,7 +10,6 @@ from .state import (
 from .node import PuzzleNode
 from .heuristics import HeuristicType, manhattan_distance, euclidean_distance, get_heuristic_fn
 from .result import SearchStep, SearchResult
-from ..solvers.solver_factory import AlgorithmType, SolverFactory
 
 __all__ = [
     "BoardState",

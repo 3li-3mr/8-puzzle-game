@@ -34,7 +34,7 @@ class BaseSolver(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        """Human-readable name of the algorithm."""
+        """Human-readable name of the algorithm"""
         pass
 
     def _reset_metrics(self) -> None:
