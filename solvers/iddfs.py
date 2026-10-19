@@ -15,6 +15,9 @@ class IDDFSSolver(BaseSolver):
     ) -> Optional[PuzzleNode]:
         for depth_limit in itertools.count(0):
             root_node.children.clear()
+            self._steps.clear()
+            self._trace_truncated = False
+
             goal_node = self._depth_limited_search(root_node, goal_state, depth_limit)
             if goal_node is not None:
                 return goal_node
@@ -35,23 +38,24 @@ class IDDFSSolver(BaseSolver):
             if current_node.state == goal_state:
                 return current_node
 
+            if current_node.depth >= depth_limit:
+                continue
+
             generated_children: List[PuzzleNode] = []
+            new_depth = current_node.depth + 1
 
-            if current_node.depth < depth_limit:
-                new_depth = current_node.depth + 1
-                for action, next_state in reversed(get_neighbors(current_node.state)):
-                    if next_state not in best_depth or new_depth < best_depth[next_state]:
-                        best_depth[next_state] = new_depth
-                        child_node = self.create_node(
-                            state=next_state,
-                            parent=current_node,
-                            action=action,
-                        )
-                        frontier.append(child_node)
-                        generated_children.append(child_node)
+            for action, next_state in reversed(get_neighbors(current_node.state)):
+                if next_state not in best_depth or new_depth < best_depth[next_state]:
+                    best_depth[next_state] = new_depth
+                    child_node = self.create_node(
+                        state=next_state,
+                        parent=current_node,
+                        action=action,
+                    )
+                    frontier.append(child_node)
+                    generated_children.append(child_node)
 
-                generated_children.reverse()
-
+            generated_children.reverse()
             self.record_expansion(current_node, generated_children, iteration=depth_limit)
 
         return None

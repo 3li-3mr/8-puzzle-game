@@ -11,4 +11,6 @@ __all__ = [
     "DFSSolver",
     "IDDFSSolver",
     "AStarSolver",
+    "AlgorithmType",
+    "SolverFactory",
 ]

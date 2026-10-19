@@ -26,6 +26,4 @@ __all__ = [
     "get_heuristic_fn",
     "SearchStep",
     "SearchResult",
-    "AlgorithmType",
-    "SolverFactory",
 ]
