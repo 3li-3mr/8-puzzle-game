@@ -17,17 +17,16 @@ class NodeVisualStatus(Enum):
 
 
 STATUS_COLORS: Dict[NodeVisualStatus, Tuple[QColor, QColor]] = {
-    # (Fill Color, Border Color)
-    NodeVisualStatus.FRONTIER: (QColor("#1e3a8a"), QColor("#60a5fa")),   # Blue
-    NodeVisualStatus.EXPANDING: (QColor("#78350f"), QColor("#fbbf24")),  # Amber/Gold
-    NodeVisualStatus.VISITED: (QColor("#334155"), QColor("#94a3b8")),    # Slate Gray
-    NodeVisualStatus.GOAL_PATH: (QColor("#065f46"), QColor("#34d399")),  # Emerald Green
+    NodeVisualStatus.FRONTIER: (QColor("#1e3a8a"), QColor("#60a5fa")),
+    NodeVisualStatus.EXPANDING: (QColor("#78350f"), QColor("#fbbf24")),
+    NodeVisualStatus.VISITED: (QColor("#334155"), QColor("#94a3b8")),
+    NodeVisualStatus.GOAL_PATH: (QColor("#065f46"), QColor("#34d399")),
 }
 
 
 class VisualTreeNode(QGraphicsObject):
     """Clickable node item on the QGraphicsScene."""
-    node_clicked = Signal(object, str)  # (PuzzleNode, status_label)
+    node_clicked = Signal(object, str)
 
     WIDTH = 66
     HEIGHT = 66
@@ -61,7 +60,6 @@ class VisualTreeNode(QGraphicsObject):
         rect = self.boundingRect()
         painter.drawRoundedRect(rect, 8, 8)
 
-        # Draw 3x3 mini board inside the node
         painter.setPen(QColor("#f8fafc"))
         font = QFont("Consolas", 8, QFont.Bold)
         painter.setFont(font)
@@ -84,9 +82,8 @@ class TreeCanvas(QGraphicsView):
     Renders the search tree up to a chosen playback step index.
     Supports mouse-drag panning and wheel zooming.
     """
-    node_selected = Signal(object, str)  # (PuzzleNode, status_str)
+    node_selected = Signal(object, str)
 
-    # Cap visual tree steps so 50,000-node searches never freeze PySide6
     MAX_VISUAL_STEPS = 400
     H_SPACING = 90
     V_SPACING = 110
@@ -136,10 +133,8 @@ class TreeCanvas(QGraphicsView):
         root = self._result.root_node
         steps = self._result.steps[: min(step_k, self.MAX_VISUAL_STEPS)]
 
-        # Determine active iteration (handles IDDFS resetting tree per depth limit)
         active_iteration = steps[-1].iteration if steps else 0
 
-        # Track visible nodes and their statuses at step_k
         visible_children: Dict[int, List[PuzzleNode]] = {root.node_id: []}
         node_map: Dict[int, PuzzleNode] = {root.node_id: root}
         expanded_ids: Set[int] = set()
@@ -160,7 +155,6 @@ class TreeCanvas(QGraphicsView):
                 visible_children[exp_node.node_id].append(child)
                 visible_children.setdefault(child.node_id, [])
 
-        # Always include the complete Goal Path when highlight_goal is active
         goal_path_ids: Set[int] = set()
         if highlight_goal and self._result.goal_reached:
             for p_node in self._result.path_to_goal:
@@ -172,7 +166,6 @@ class TreeCanvas(QGraphicsView):
                     if all(c.node_id != p_node.node_id for c in parent_list):
                         parent_list.append(p_node)
 
-        # Compute non-overlapping (x, y) coordinates via recursive subtree leaf widths
         positions: Dict[int, QPointF] = {}
         subtree_widths: Dict[int, float] = {}
 
@@ -200,7 +193,6 @@ class TreeCanvas(QGraphicsView):
         compute_width(root.node_id)
         assign_coords(root.node_id, 0.0, 0)
 
-        # 1. Draw Edges + Action Labels ("Up", "Down", "Left", "Right")
         for parent_id, children in visible_children.items():
             if parent_id not in positions:
                 continue
@@ -223,7 +215,6 @@ class TreeCanvas(QGraphicsView):
                 )
                 line.setZValue(1)
 
-                # Action badge at midpoint of edge
                 if child.action:
                     mid_x = (p_pos.x() + c_pos.x()) / 2.0
                     mid_y = (p_pos.y() + c_pos.y()) / 2.0
@@ -232,7 +223,6 @@ class TreeCanvas(QGraphicsView):
                     lbl.setPos(mid_x - 8, mid_y - 10)
                     lbl.setZValue(3)
 
-        # 2. Draw Visual Nodes
         for n_id, pos in positions.items():
             p_node = node_map[n_id]
             if highlight_goal and n_id in goal_path_ids:
@@ -250,7 +240,6 @@ class TreeCanvas(QGraphicsView):
             item.node_clicked.connect(self._on_item_clicked)
             self._scene.addItem(item)
 
-        # Pad scene rect so panning feels spacious
         rect = self._scene.itemsBoundingRect()
         self._scene.setSceneRect(rect.adjusted(-150, -100, 150, 150))
 

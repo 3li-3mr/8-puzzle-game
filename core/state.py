@@ -3,7 +3,6 @@ from typing import Tuple, List
 BoardState = Tuple[int, ...]
 GOAL_STATE: BoardState = (0, 1, 2, 3, 4, 5, 6, 7, 8)
 
-# Standard action order from the ColumbiaX CSMM.101x specification
 ACTION_ORDER: Tuple[str, ...] = ("Up", "Down", "Left", "Right")
 
 
@@ -39,7 +38,6 @@ def get_neighbors(state: BoardState) -> List[Tuple[str, BoardState]]:
     zero_idx = state.index(0)
     row, col = divmod(zero_idx, 3)
 
-    # Deltas for moving the blank space (0)
     moves = (
         ("Up", -1, 0),
         ("Down", 1, 0),
@@ -53,7 +51,6 @@ def get_neighbors(state: BoardState) -> List[Tuple[str, BoardState]]:
         if 0 <= new_row < 3 and 0 <= new_col < 3:
             target_idx = new_row * 3 + new_col
             state_list = list(state)
-            # Swap blank (0) with the adjacent tile
             state_list[zero_idx], state_list[target_idx] = (
                 state_list[target_idx],
                 state_list[zero_idx],

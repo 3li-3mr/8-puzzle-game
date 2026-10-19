@@ -14,7 +14,6 @@ class IDDFSSolver(BaseSolver):
         self, root_node: PuzzleNode, goal_state: BoardState
     ) -> Optional[PuzzleNode]:
         for depth_limit in itertools.count(0):
-            # Start each iteration with a clean tree
             root_node.children.clear()
             goal_node = self._depth_limited_search(root_node, goal_state, depth_limit)
             if goal_node is not None:
@@ -25,13 +24,11 @@ class IDDFSSolver(BaseSolver):
         self, root_node: PuzzleNode, goal_state: BoardState, depth_limit: int
     ) -> Optional[PuzzleNode]:
         frontier: List[PuzzleNode] = [root_node]
-        # Shallowest depth at which each state was seen in this iteration
         best_depth: Dict[BoardState, int] = {root_node.state: 0}
 
         while frontier:
             current_node = frontier.pop()
 
-            # Skip stale copies: a shallower path to this state was found later
             if current_node.depth > best_depth[current_node.state]:
                 continue
 
@@ -40,7 +37,6 @@ class IDDFSSolver(BaseSolver):
 
             generated_children: List[PuzzleNode] = []
 
-            # Only expand if we have not reached the depth limit
             if current_node.depth < depth_limit:
                 new_depth = current_node.depth + 1
                 for action, next_state in reversed(get_neighbors(current_node.state)):
@@ -54,7 +50,6 @@ class IDDFSSolver(BaseSolver):
                         frontier.append(child_node)
                         generated_children.append(child_node)
 
-                # Restore Up, Down, Left, Right order for the GUI display
                 generated_children.reverse()
 
             self.record_expansion(current_node, generated_children, iteration=depth_limit)

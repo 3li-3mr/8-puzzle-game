@@ -9,7 +9,7 @@ class SearchStep:
     step_index: int
     expanded_node: PuzzleNode
     generated_children: List[PuzzleNode]
-    iteration: int = 0  # Tracks depth limit iterations in IDDFS
+    iteration: int = 0
 
 
 @dataclass
@@ -20,12 +20,12 @@ class SearchResult:
     path_to_goal: List[PuzzleNode] = field(default_factory=list)
     cost_of_path: int = 0
     nodes_expanded: int = 0
-    search_depth: int = 0          # Depth of the goal node
-    max_search_depth: int = 0      # Maximum depth reached anywhere in the tree
-    running_time: float = 0.0      # Execution time in seconds
+    search_depth: int = 0
+    max_search_depth: int = 0
+    running_time: float = 0.0
     root_node: Optional[PuzzleNode] = None
     steps: List[SearchStep] = field(default_factory=list)
-    trace_truncated: bool = False  # True if steps exceeded max_trace_steps
+    trace_truncated: bool = False
 
     @property
     def actions_to_goal(self) -> List[str]:

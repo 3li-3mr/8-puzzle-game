@@ -14,7 +14,6 @@ class BFSSolver(BaseSolver):
         self, root_node: PuzzleNode, goal_state: BoardState
     ) -> Optional[PuzzleNode]:
         frontier: deque[PuzzleNode] = deque([root_node])
-        # Track states in (frontier U explored) in O(1) to prevent duplicate queuing
         reached: Set[BoardState] = {root_node.state}
 
         while frontier:

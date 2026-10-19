@@ -74,7 +74,6 @@ class ResultView(QWidget):
         root_layout.setContentsMargins(16, 16, 16, 16)
         root_layout.setSpacing(12)
 
-        # 1. Top Bar: Back Button + Report Deliverables
         top_bar = QHBoxLayout()
         back_btn = QPushButton("← Back to Setup")
         back_btn.setCursor(Qt.PointingHandCursor)
@@ -96,7 +95,6 @@ class ResultView(QWidget):
         top_bar.addWidget(self.metrics_label, 1)
         root_layout.addLayout(top_bar)
 
-        # Optional Truncation Notice Banner
         self.banner_label = QLabel()
         self.banner_label.setStyleSheet(
             "background-color: #451a03; color: #fdba74; padding: 6px 12px; "
@@ -105,16 +103,13 @@ class ResultView(QWidget):
         self.banner_label.hide()
         root_layout.addWidget(self.banner_label)
 
-        # 2. Center Splitter: Tree Canvas (Left) + Inspector Tabs (Right)
         splitter = QSplitter(Qt.Horizontal)
 
-        # Left side: Legend + TreeCanvas + Playback Controls
         left_widget = QWidget()
         left_layout = QVBoxLayout(left_widget)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(8)
 
-        # Color Legend
         legend_bar = QHBoxLayout()
         for label_txt, color_hex in (
             ("● Frontier", "#60a5fa"),
@@ -131,12 +126,10 @@ class ResultView(QWidget):
         legend_bar.addWidget(hint_lbl)
         left_layout.addLayout(legend_bar)
 
-        # Canvas
         self.canvas = TreeCanvas()
         self.canvas.node_selected.connect(self._populate_inspector)
         left_layout.addWidget(self.canvas, 1)
 
-        # Playback Control Bar
         ctrl_bar = QHBoxLayout()
         self.btn_play = QPushButton("▶ Play")
         self.btn_prev = QPushButton("⏮ Step -")
@@ -182,7 +175,6 @@ class ResultView(QWidget):
         left_layout.addLayout(ctrl_bar)
         splitter.addWidget(left_widget)
 
-        # Right side: Inspector & Goal Path Tabs
         self.right_tabs = QTabWidget()
         self.right_tabs.setFixedWidth(310)
         self.right_tabs.setStyleSheet("""
@@ -205,7 +197,6 @@ class ResultView(QWidget):
             }
         """)
 
-        # Tab 1: Clicked Node Inspector
         inspector_tab = QWidget()
         insp_layout = QVBoxLayout(inspector_tab)
         insp_layout.setAlignment(Qt.AlignTop)
@@ -232,7 +223,6 @@ class ResultView(QWidget):
         insp_layout.addWidget(self.inspector_details)
         self.right_tabs.addTab(inspector_tab, "Node Inspector")
 
-        # Tab 2: Solution Path Trace (Initial -> Goal)
         path_tab = QWidget()
         path_layout = QVBoxLayout(path_tab)
         path_layout.setContentsMargins(12, 12, 12, 12)
@@ -270,7 +260,6 @@ class ResultView(QWidget):
         self.btn_play.setText("▶ Play")
         self._result = result
 
-        # Populate top deliverables bar
         self.metrics_label.setText(
             f"<b>Algorithm:</b> {result.algorithm_name} &nbsp;|&nbsp; "
             f"<b>Path Cost:</b> {result.cost_of_path} &nbsp;|&nbsp; "
@@ -279,7 +268,6 @@ class ResultView(QWidget):
             f"<b>Running Time:</b> {result.running_time * 1000:.2f} ms"
         )
 
-        # Load tree into canvas
         self._max_slider_steps = self.canvas.load_result(result)
         self.step_slider.blockSignals(True)
         self.step_slider.setRange(0, self._max_slider_steps)
@@ -287,7 +275,6 @@ class ResultView(QWidget):
         self.step_slider.blockSignals(False)
         self._update_step_label(0)
 
-        # Show banner if visual steps were capped for UI performance
         if len(result.steps) > self.canvas.MAX_VISUAL_STEPS or result.trace_truncated:
             self.banner_label.setText(
                 f"Note: Search expanded {result.nodes_expanded} nodes. Visual tree playback is capped at the "
@@ -298,7 +285,6 @@ class ResultView(QWidget):
         else:
             self.banner_label.hide()
 
-        # Populate Goal Path Trace list
         self.path_list.clear()
         for idx, node in enumerate(result.path_to_goal):
             move_str = "Initial State" if node.action is None else f"Step {idx}: Move {node.action}"
@@ -307,12 +293,10 @@ class ResultView(QWidget):
         if result.path_to_goal:
             self.path_list.setCurrentRow(0)
 
-        # Inspect root node initially
         if result.root_node:
             self._populate_inspector(result.root_node, "Frontier")
             self.right_tabs.setCurrentIndex(0)
 
-        # If user disabled step recording, jump straight to final goal path
         if not result.steps and result.goal_reached:
             self._show_final_goal_path()
 
@@ -342,7 +326,7 @@ class ResultView(QWidget):
         if is_at_end:
             self._timer.stop()
             self.btn_play.setText("▶ Play")
-            self.right_tabs.setCurrentIndex(1)  # Open Goal Path Trace tab automatically!
+            self.right_tabs.setCurrentIndex(1)
 
     def _show_final_goal_path(self) -> None:
         self._timer.stop()

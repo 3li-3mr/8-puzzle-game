@@ -22,7 +22,6 @@ class DFSSolver(BaseSolver):
                 return current_node
 
             generated_children: List[PuzzleNode] = []
-            # Reverse neighbor push order so 'Up' is popped first from LIFO stack
             for action, next_state in reversed(get_neighbors(current_node.state)):
                 if next_state not in reached:
                     reached.add(next_state)
@@ -34,7 +33,6 @@ class DFSSolver(BaseSolver):
                     frontier.append(child_node)
                     generated_children.append(child_node)
 
-            # Reverse back so the GUI displays children in Up, Down, Left, Right order
             generated_children.reverse()
             self.record_expansion(current_node, generated_children)
 

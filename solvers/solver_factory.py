@@ -18,7 +18,6 @@ class SolverFactory:
         record_trace: bool = True,
         max_trace_steps: int = 5000,
     ) -> BaseSolver:
-        # Lazy imports so your repo works even while your teammate's files are still stubs
         if algorithm == AlgorithmType.BFS:
             from solvers.bfs import BFSSolver
             return BFSSolver(record_trace=record_trace, max_trace_steps=max_trace_steps)

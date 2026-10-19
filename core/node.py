@@ -7,10 +7,10 @@ from .state import BoardState
 class PuzzleNode:
     state: BoardState
     parent: Optional["PuzzleNode"] = None
-    action: Optional[str] = None          # 'Up', 'Down', 'Left', 'Right' (None for root)
-    depth: int = 0                        # g(n): cost from root to current node
-    heuristic: float = 0.0                # h(n): estimated cost to goal (0.0 for uninformed)
-    node_id: int = 0                      # Unique sequential ID for GUI tree mapping & tie-breaking
+    action: Optional[str] = None
+    depth: int = 0
+    heuristic: float = 0.0
+    node_id: int = 0
     children: List["PuzzleNode"] = field(default_factory=list, repr=False)
 
     @property

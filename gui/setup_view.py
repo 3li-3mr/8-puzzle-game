@@ -15,15 +15,12 @@ from solvers import AlgorithmType, SolverFactory
 
 
 class SetupView(QWidget):
-    # Signal emitted when user clicks "Run Search":
-    # (initial_state, algorithm_type, heuristic_type, record_trace)
     start_search_requested = Signal(tuple, object, object, bool)
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._cells: list[QLineEdit] = []
         self._build_ui()
-        # Load the sample state from the lab PDF by default
         self.set_board_state((1, 2, 5, 3, 4, 0, 6, 7, 8))
 
     def _build_ui(self) -> None:
@@ -31,7 +28,6 @@ class SetupView(QWidget):
         main_layout.setAlignment(Qt.AlignCenter)
         main_layout.setSpacing(20)
 
-        # Card container
         card = QFrame()
         card.setFixedWidth(480)
         card.setStyleSheet("""
@@ -46,7 +42,6 @@ class SetupView(QWidget):
         card_layout.setContentsMargins(32, 32, 32, 32)
         card_layout.setSpacing(18)
 
-        # Title
         title = QLabel("8-Puzzle AI Solver")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 24px; font-weight: bold; color: #38bdf8;")
@@ -57,7 +52,6 @@ class SetupView(QWidget):
         subtitle.setStyleSheet("font-size: 13px; color: #94a3b8;")
         card_layout.addWidget(subtitle)
 
-        # 3x3 Grid
         grid_wrapper = QHBoxLayout()
         grid_wrapper.setAlignment(Qt.AlignCenter)
         grid_layout = QGridLayout()
@@ -91,7 +85,6 @@ class SetupView(QWidget):
         grid_wrapper.addLayout(grid_layout)
         card_layout.addLayout(grid_wrapper)
 
-        # Quick Preset & Randomize Buttons
         preset_layout = QHBoxLayout()
         btn_lab_sample = QPushButton("Lab PDF Sample")
         btn_random = QPushButton("Random Solvable")
@@ -117,13 +110,11 @@ class SetupView(QWidget):
         btn_hard.clicked.connect(lambda: self.set_board_state((2, 5, 3, 1, 0, 6, 4, 7, 8)))
         card_layout.addLayout(preset_layout)
 
-        # Solvability Status Badge
         self.status_label = QLabel()
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setStyleSheet("font-size: 13px; font-weight: bold; padding: 6px; border-radius: 6px;")
         card_layout.addWidget(self.status_label)
 
-        # Algorithm Selector
         algo_row = QHBoxLayout()
         algo_lbl = QLabel("Algorithm:")
         algo_lbl.setStyleSheet("font-size: 14px; font-weight: bold;")
@@ -136,7 +127,6 @@ class SetupView(QWidget):
         algo_row.addWidget(self.algo_combo, 1)
         card_layout.addLayout(algo_row)
 
-        # Heuristic Selector (Only active for A*)
         heur_row = QHBoxLayout()
         self.heur_lbl = QLabel("A* Heuristic:")
         self.heur_lbl.setStyleSheet("font-size: 14px; font-weight: bold;")
@@ -148,13 +138,11 @@ class SetupView(QWidget):
         heur_row.addWidget(self.heur_combo, 1)
         card_layout.addLayout(heur_row)
 
-        # Visualization Toggle
         self.trace_checkbox = QCheckBox("Record step-by-step search tree for interactive playback")
         self.trace_checkbox.setChecked(True)
         self.trace_checkbox.setStyleSheet("color: #cbd5e1; font-size: 13px;")
         card_layout.addWidget(self.trace_checkbox)
 
-        # Run Button
         self.run_btn = QPushButton("Solve & Visualize")
         self.run_btn.setCursor(Qt.PointingHandCursor)
         self.run_btn.setFixedHeight(44)
@@ -224,7 +212,6 @@ class SetupView(QWidget):
                 break
 
     def _validate_current_board(self) -> None:
-        # Style blank cell '0' distinctly
         for cell in self._cells:
             if cell.text().strip() == "0":
                 cell.setStyleSheet(cell.styleSheet().replace("color: #f8fafc;", "color: #38bdf8;"))

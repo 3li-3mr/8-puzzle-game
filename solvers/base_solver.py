@@ -24,7 +24,6 @@ class BaseSolver(ABC):
         self.record_trace = record_trace
         self.max_trace_steps = max_trace_steps
 
-        # Internal counters reset on every solve() call
         self._node_counter: int = 0
         self._nodes_expanded: int = 0
         self._max_search_depth: int = 0
